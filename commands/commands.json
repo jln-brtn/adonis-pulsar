@@ -1,0 +1,34 @@
+{
+  "commands": [
+    {
+      "commandName": "make:consumer",
+      "description": "Make a new Pulsar consumer class",
+      "help": "",
+      "namespace": "make",
+      "aliases": [],
+      "flags": [],
+      "args": [
+        {
+          "name": "name",
+          "argumentName": "name",
+          "required": true,
+          "description": "Name of the consumer",
+          "type": "string"
+        }
+      ],
+      "options": { "allowUnknownFlags": true },
+      "filePath": "./make_consumer.js"
+    },
+    {
+      "commandName": "pulsar:listen",
+      "description": "Start the Pulsar consumer listener",
+      "help": "",
+      "namespace": "pulsar",
+      "aliases": [],
+      "flags": [],
+      "args": [],
+      "options": { "startApp": true, "staysAlive": true },
+      "filePath": "./pulsar_listen.js"
+    }
+  ]
+}

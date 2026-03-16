@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "copy:stubs": "copyfiles \"stubs/**/*.stub\" build",
-    "compile": "npm run clean && npm run build && npm run copy:stubs",
+    "copy:commands": "copyfiles \"commands/commands.json\" build",
+    "compile": "npm run clean && npm run build && npm run copy:stubs && npm run copy:commands",
     "prepublishOnly": "npm run compile"
   },
   "keywords": [
