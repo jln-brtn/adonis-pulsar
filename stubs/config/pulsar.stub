@@ -6,6 +6,9 @@ import { defineConfig } from 'adonis-pulsar'
 
 const pulsarConfig = defineConfig({
   serviceUrl: env.get('PULSAR_SERVICE_URL'),
+  // token: env.get('PULSAR_TOKEN'),
+  // tenant: env.get('PULSAR_TENANT'),
+  // namespace: env.get('PULSAR_NAMESPACE'),
   consumers: [],
 })
 

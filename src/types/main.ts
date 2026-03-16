@@ -3,7 +3,10 @@ import type { Consumer } from '../consumer.js'
 
 export interface PulsarConfig {
   serviceUrl: string
-  client?: Omit<Pulsar.ClientConfig, 'serviceUrl'>
+  token?: string
+  tenant?: string
+  namespace?: string
+  client?: Omit<Pulsar.ClientConfig, 'serviceUrl' | 'authentication'>
   producer?: Omit<Pulsar.ProducerConfig, 'topic'>
   consumers?: (() => Promise<{ default: ConsumerConstructor }>)[]
 }

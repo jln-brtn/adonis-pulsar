@@ -16,15 +16,23 @@ export class PulsarManager {
   ) {
     this.#client = new Pulsar.Client({
       serviceUrl: config.serviceUrl,
+      ...(config.token && { authentication: new Pulsar.AuthenticationToken({ token: config.token }) }),
       ...config.client,
     })
+  }
+
+  #buildTopic(topic: string): string {
+    if (this.config.tenant && this.config.namespace && !topic.includes('://')) {
+      return `persistent://${this.config.tenant}/${this.config.namespace}/${topic}`
+    }
+    return topic
   }
 
   async #getOrCreateProducer(topic: string): Promise<Pulsar.Producer> {
     let producer = this.#producers.get(topic)
     if (!producer) {
       producer = await this.#client.createProducer({
-        topic,
+        topic: this.#buildTopic(topic),
         ...this.config.producer,
       })
       this.#producers.set(topic, producer)
@@ -67,7 +75,7 @@ export class PulsarManager {
       const deadLetterTopic = `${ConsumerClass.topic}-${ConsumerClass.subscription}-DLQ`
 
       const pulsarConsumer = await this.#client.subscribe({
-        topic: ConsumerClass.topic,
+        topic: this.#buildTopic(ConsumerClass.topic),
         subscription: ConsumerClass.subscription,
         subscriptionType: ConsumerClass.subscriptionType ?? 'Shared',
         ...(maxRedeliverCount > 0 && {
