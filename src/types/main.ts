@@ -1,0 +1,24 @@
+import type Pulsar from 'pulsar-client'
+import type { Consumer } from '../consumer.js'
+
+export interface PulsarConfig {
+  serviceUrl: string
+  client?: Omit<Pulsar.ClientConfig, 'serviceUrl'>
+  producer?: Omit<Pulsar.ProducerConfig, 'topic'>
+  consumers?: (() => Promise<{ default: ConsumerConstructor }>)[]
+}
+
+export interface ConsumerConstructor {
+  topic: string
+  subscription: string
+  subscriptionType?: Pulsar.SubscriptionType
+  maxRedeliverCount?: number
+  new (): Consumer
+}
+
+export interface DispatchOptions {
+  properties?: { [key: string]: string }
+  deliverAfter?: number
+  deliverAt?: number
+  partitionKey?: string
+}

@@ -1,0 +1,16 @@
+{{{
+  exports({ to: app.makePath('app/consumers', `${entity.fileName}.ts`) })
+}}}
+import type Pulsar from 'pulsar-client'
+import { Consumer } from 'adonis-pulsar'
+
+export default class {{ entity.name }}Consumer extends Consumer {
+  static topic = 'persistent://public/default/{{ entity.fileName }}'
+  static subscription = '{{ entity.fileName }}-subscription'
+
+  async handle(message: Pulsar.Message, consumer: Pulsar.Consumer): Promise<void> {
+    const data = message.getData().toString()
+    console.log('Received message:', data)
+    consumer.acknowledge(message)
+  }
+}

@@ -1,0 +1,12 @@
+{{{
+  exports({ to: app.configPath('pulsar.ts') })
+}}}
+import env from '#start/env'
+import { defineConfig } from 'adonis-pulsar'
+
+const pulsarConfig = defineConfig({
+  serviceUrl: env.get('PULSAR_SERVICE_URL'),
+  consumers: [],
+})
+
+export default pulsarConfig

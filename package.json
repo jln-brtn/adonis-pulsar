@@ -1,0 +1,51 @@
+{
+  "name": "adonis-pulsar",
+  "description": "AdonisJS v6 wrapper for Apache Pulsar",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "type": "module",
+  "files": [
+    "build"
+  ],
+  "exports": {
+    ".": "./build/index.js",
+    "./types": "./build/src/types/main.js",
+    "./pulsar_provider": "./build/providers/pulsar_provider.js",
+    "./commands": "./build/commands/index.js",
+    "./services/main": "./build/services/main.js"
+  },
+  "scripts": {
+    "clean": "del-cli build",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "copy:stubs": "copyfiles \"stubs/**/*.stub\" build",
+    "compile": "npm run clean && npm run build && npm run copy:stubs",
+    "prepublishOnly": "npm run compile"
+  },
+  "keywords": [
+    "adonisjs",
+    "pulsar",
+    "apache-pulsar",
+    "message-queue"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "pulsar-client": "^1.11.0"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@adonisjs/core": "^6.2.0",
+    "@adonisjs/eslint-config": "^2.0.0",
+    "@adonisjs/prettier-config": "^1.4.0",
+    "@adonisjs/tsconfig": "^1.4.0",
+    "@types/node": "^22.0.0",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^6.0.0",
+    "typescript": "^5.6.0"
+  }
+}
