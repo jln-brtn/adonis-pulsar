@@ -11,6 +11,8 @@ export abstract class Consumer {
    * Set to 0 to disable the dead-letter policy.
    */
   static maxRedeliverCount: number = 0
+  static tenant: string | undefined
+  static namespace: string | undefined
 
   abstract handle(message: Pulsar.Message, consumer: Pulsar.Consumer): Promise<void>
 

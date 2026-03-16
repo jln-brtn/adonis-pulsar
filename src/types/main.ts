@@ -16,6 +16,8 @@ export interface ConsumerConstructor {
   subscription: string
   subscriptionType?: Pulsar.SubscriptionType
   maxRedeliverCount?: number
+  tenant?: string
+  namespace?: string
   new (): Consumer
 }
 

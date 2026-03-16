@@ -54,6 +54,13 @@ import { defineConfig } from 'adonis-pulsar'
 const pulsarConfig = defineConfig({
   serviceUrl: env.get('PULSAR_SERVICE_URL'),
 
+  // Optional: JWT token for authentication
+  token: env.get('PULSAR_TOKEN', ''),
+
+  // Optional: default tenant and namespace used to resolve short topic names
+  tenant: env.get('PULSAR_TENANT', 'public'),
+  namespace: env.get('PULSAR_NAMESPACE', 'default'),
+
   // Optional: extra options forwarded to new Pulsar.Client()
   client: {
     operationTimeoutSeconds: 30,
@@ -73,16 +80,24 @@ const pulsarConfig = defineConfig({
 export default pulsarConfig
 ```
 
-### Environment variable
+### Environment variables
 
 ```dotenv
 PULSAR_SERVICE_URL=pulsar://localhost:6650
+
+# Optional: JWT authentication token
+PULSAR_TOKEN=
+
+# Optional: default tenant and namespace for short topic name resolution
+PULSAR_TENANT=public
+PULSAR_NAMESPACE=default
 ```
 
 For TLS connections:
 
 ```dotenv
 PULSAR_SERVICE_URL=pulsar+ssl://broker.example.com:6651
+PULSAR_TOKEN=eyJhbGciOiJSUzI1NiJ9...
 ```
 
 ---
@@ -100,14 +115,47 @@ import type Pulsar from 'pulsar-client'
 import { Consumer } from 'adonis-pulsar'
 
 export default class OrderConsumer extends Consumer {
-  static topic = 'persistent://public/default/order'
+  static topic = 'order'
   static subscription = 'order-subscription'
+  // static tenant = 'public'     // overrides config.tenant for this consumer
+  // static namespace = 'default' // overrides config.namespace for this consumer
 
   async handle(message: Pulsar.Message, consumer: Pulsar.Consumer): Promise<void> {
     const data = message.getData().toString()
     console.log('Received message:', data)
     consumer.acknowledge(message)
   }
+}
+```
+
+### Tenant and namespace resolution
+
+When `topic` is a short name (e.g. `'order'`), the full topic URL is resolved at subscribe time using this priority order:
+
+1. **Per-consumer** `static tenant` / `static namespace` (highest priority)
+2. **Global config** `tenant` / `namespace`
+3. If neither is set, the short name is passed to Pulsar as-is (or use a full URL directly)
+
+To set global defaults, add them to `config/pulsar.ts`:
+
+```ts
+const pulsarConfig = defineConfig({
+  serviceUrl: env.get('PULSAR_SERVICE_URL'),
+  tenant: env.get('PULSAR_TENANT'),      // e.g. 'public'
+  namespace: env.get('PULSAR_NAMESPACE'), // e.g. 'default'
+  consumers: [...],
+})
+```
+
+To override for a specific consumer, declare `static tenant` and `static namespace` on the class:
+
+```ts
+export default class LegacyOrderConsumer extends Consumer {
+  static topic = 'order'
+  static subscription = 'order-subscription'
+  static tenant = 'legacy'
+  static namespace = 'v1'
+  // Resolves to persistent://legacy/v1/order regardless of global config
 }
 ```
 
@@ -123,10 +171,12 @@ consumers: [
 
 | Static property | Type | Default | Description |
 |---|---|---|---|
-| `topic` | `string` | — | **Required.** Full Pulsar topic URL |
+| `topic` | `string` | — | **Required.** Topic name — short form (e.g. `order`) or full URL (e.g. `persistent://public/default/order`) |
 | `subscription` | `string` | — | **Required.** Subscription name |
 | `subscriptionType` | `SubscriptionType` | `'Shared'` | `Exclusive`, `Shared`, `Failover`, or `KeyShared` |
 | `maxRedeliverCount` | `number` | `0` | Max delivery attempts before `rescue()` is called. `0` disables the dead-letter policy. |
+| `tenant` | `string` | `undefined` | Overrides `config.tenant` for this consumer. Requires `namespace` to also be set. |
+| `namespace` | `string` | `undefined` | Overrides `config.namespace` for this consumer. Requires `tenant` to also be set. |
 
 ### Handling errors
 
@@ -154,7 +204,7 @@ import type Pulsar from 'pulsar-client'
 import { Consumer } from 'adonis-pulsar'
 
 export default class OrderConsumer extends Consumer {
-  static topic = 'persistent://public/default/order'
+  static topic = 'order'
   static subscription = 'order-subscription'
   static maxRedeliverCount = 3  // rescue() fires on the 4th failure
 
@@ -201,10 +251,10 @@ The command connects to Pulsar, subscribes all registered consumers, and keeps t
 ```ts
 import pulsar from 'adonis-pulsar/services/main'
 
-// String payload
-await pulsar.dispatch('persistent://public/default/order', JSON.stringify({ id: 1 }))
+// Short name (resolved using config.tenant / config.namespace)
+await pulsar.dispatch('order', JSON.stringify({ id: 1 }))
 
-// Buffer payload
+// Full URL — always used as-is
 await pulsar.dispatch('persistent://public/default/order', Buffer.from('hello'))
 ```
 
@@ -212,13 +262,13 @@ await pulsar.dispatch('persistent://public/default/order', Buffer.from('hello'))
 
 ```ts
 const pulsar = await app.container.make('adonis-pulsar/manager')
-await pulsar.dispatch('persistent://public/default/order', 'hello')
+await pulsar.dispatch('order', 'hello')
 ```
 
 ### Dispatch options
 
 ```ts
-await pulsar.dispatch('persistent://public/default/order', payload, {
+await pulsar.dispatch('order', payload, {
   // Custom message properties (key/value string map)
   properties: {
     correlationId: '123',

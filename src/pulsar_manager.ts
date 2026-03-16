@@ -21,9 +21,11 @@ export class PulsarManager {
     })
   }
 
-  #buildTopic(topic: string): string {
-    if (this.config.tenant && this.config.namespace && !topic.includes('://')) {
-      return `persistent://${this.config.tenant}/${this.config.namespace}/${topic}`
+  #buildTopic(topic: string, tenant?: string, namespace?: string): string {
+    const effectiveTenant = tenant ?? this.config.tenant
+    const effectiveNamespace = namespace ?? this.config.namespace
+    if (effectiveTenant && effectiveNamespace && !topic.includes('://')) {
+      return `persistent://${effectiveTenant}/${effectiveNamespace}/${topic}`
     }
     return topic
   }
@@ -72,10 +74,15 @@ export class PulsarManager {
 
     for (const ConsumerClass of this.#consumers) {
       const maxRedeliverCount = ConsumerClass.maxRedeliverCount ?? 0
-      const deadLetterTopic = `${ConsumerClass.topic}-${ConsumerClass.subscription}-DLQ`
+      const resolvedTopic = this.#buildTopic(
+        ConsumerClass.topic,
+        ConsumerClass.tenant,
+        ConsumerClass.namespace
+      )
+      const deadLetterTopic = `${resolvedTopic}-${ConsumerClass.subscription}-DLQ`
 
       const pulsarConsumer = await this.#client.subscribe({
-        topic: this.#buildTopic(ConsumerClass.topic),
+        topic: resolvedTopic,
         subscription: ConsumerClass.subscription,
         subscriptionType: ConsumerClass.subscriptionType ?? 'Shared',
         ...(maxRedeliverCount > 0 && {
@@ -86,7 +93,7 @@ export class PulsarManager {
         }),
       })
       this.#pulsarConsumers.push(pulsarConsumer)
-      this.logger.info(`Listening on topic "${ConsumerClass.topic}" (${ConsumerClass.subscription})`)
+      this.logger.info(`Listening on topic "${resolvedTopic}" (${ConsumerClass.subscription})`)
       this.#runReceiveLoop(ConsumerClass, pulsarConsumer).catch((error) => {
         this.logger.error(error, `Receive loop crashed for topic "${ConsumerClass.topic}"`)
       })

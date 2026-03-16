@@ -5,8 +5,10 @@ import type Pulsar from 'pulsar-client'
 import { Consumer } from 'adonis-pulsar'
 
 export default class {{ entity.name }}Consumer extends Consumer {
-  static topic = 'persistent://public/default/{{ entity.fileName }}'
+  static topic = '{{ entity.fileName }}'
   static subscription = '{{ entity.fileName }}-subscription'
+  // static tenant = 'public'     // overrides config.tenant for this consumer
+  // static namespace = 'default' // overrides config.namespace for this consumer
 
   async handle(message: Pulsar.Message, consumer: Pulsar.Consumer): Promise<void> {
     const data = message.getData().toString()
