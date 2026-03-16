@@ -69,6 +69,7 @@ export class PulsarManager {
   }
 
   async listen(): Promise<void> {
+    if (this.#running) return
     this.#running = true
     this.logger.info('Starting Pulsar consumers...')
 

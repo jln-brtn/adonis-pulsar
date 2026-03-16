@@ -61,6 +61,9 @@ const pulsarConfig = defineConfig({
   tenant: env.get('PULSAR_TENANT', 'public'),
   namespace: env.get('PULSAR_NAMESPACE', 'default'),
 
+  // Optional: set to false to disable auto-start (use `node ace pulsar:listen` instead)
+  // autoListen: false,
+
   // Optional: extra options forwarded to new Pulsar.Client()
   client: {
     operationTimeoutSeconds: 30,
@@ -71,7 +74,7 @@ const pulsarConfig = defineConfig({
     sendTimeoutMs: 30000,
   },
 
-  // Consumers to start when running `pulsar:listen`
+  // Consumers started automatically on app boot (or via `pulsar:listen`)
   consumers: [
     () => import('#consumers/order_consumer'),
   ],
@@ -236,11 +239,15 @@ export default class OrderConsumer extends Consumer {
 
 ## Starting the listener
 
+By default (`autoListen: true`), consumers start automatically when the application boots — no separate command needed. Each consumer runs its own independent receive loop; a crash in one loop is logged and does not affect the others.
+
+To disable auto-start, set `autoListen: false` in `config/pulsar.ts` and run the dedicated command instead:
+
 ```bash
 node ace pulsar:listen
 ```
 
-The command connects to Pulsar, subscribes all registered consumers, and keeps the process alive. Each consumer runs its own independent receive loop — a crash in one loop is logged and does not affect the others.
+This is useful when you want consumers running in a dedicated process separate from the HTTP server.
 
 ---
 
