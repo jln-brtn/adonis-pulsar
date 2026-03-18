@@ -13,11 +13,11 @@ It provides:
 
 ## Requirements
 
-| Dependency | Version |
-|---|---|
-| Node.js | `>= 20.6.0` |
-| AdonisJS | `^6.2.0` |
-| pulsar-client | `^1.11.0` |
+| Dependency | Version     |
+|---|-------------|
+| Node.js | `>= 24.0.0` |
+| AdonisJS | `^7.0.0`    |
+| pulsar-client | `^1.11.0`   |
 
 ---
 

@@ -14,7 +14,7 @@ const pulsarConfig = defineConfig({
   // tenant: env.get('PULSAR_TENANT', 'public'),
   // namespace: env.get('PULSAR_NAMESPACE', 'default'),
 
-  // Consumers start automatically when the HTTP server boots (`node ace serve`)
+  // Consumers start automatically when the HTTP server boots (node ace serve)
   consumers: [],
 })
 
