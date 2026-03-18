@@ -6,9 +6,15 @@ import { defineConfig } from 'adonis-pulsar'
 
 const pulsarConfig = defineConfig({
   serviceUrl: env.get('PULSAR_SERVICE_URL'),
-  // token: env.get('PULSAR_TOKEN'),
-  // tenant: env.get('PULSAR_TENANT'),
-  // namespace: env.get('PULSAR_NAMESPACE'),
+
+  // Optional: JWT token for authentication
+  // token: env.get('PULSAR_TOKEN', ''),
+
+  // Optional: default tenant and namespace used to resolve short topic names
+  // tenant: env.get('PULSAR_TENANT', 'public'),
+  // namespace: env.get('PULSAR_NAMESPACE', 'default'),
+
+  // Consumers start automatically when the HTTP server boots (`node ace serve`)
   consumers: [],
 })
 

@@ -6,7 +6,6 @@ It provides:
 - A **provider** that manages the Pulsar client lifecycle
 - A **`dispatch`** method to publish messages to any topic
 - An **abstract `Consumer` class** to handle incoming messages
-- An **Ace command** (`pulsar:listen`) to start all consumers
 - A **generator** (`make:consumer`) to scaffold new consumers
 - A **`configure`** hook for `node ace add adonis-pulsar`
 
@@ -61,9 +60,6 @@ const pulsarConfig = defineConfig({
   tenant: env.get('PULSAR_TENANT', 'public'),
   namespace: env.get('PULSAR_NAMESPACE', 'default'),
 
-  // Optional: set to false to disable auto-start (use `node ace pulsar:listen` instead)
-  // autoListen: false,
-
   // Optional: extra options forwarded to new Pulsar.Client()
   client: {
     operationTimeoutSeconds: 30,
@@ -74,7 +70,7 @@ const pulsarConfig = defineConfig({
     sendTimeoutMs: 30000,
   },
 
-  // Consumers started automatically on app boot (or via `pulsar:listen`)
+  // Consumers started automatically on app boot
   consumers: [
     () => import('#consumers/order_consumer'),
   ],
@@ -239,15 +235,9 @@ export default class OrderConsumer extends Consumer {
 
 ## Starting the listener
 
-By default (`autoListen: true`), consumers start automatically when the application boots — no separate command needed. Each consumer runs its own independent receive loop; a crash in one loop is logged and does not affect the others.
+Consumers start automatically when the HTTP server boots (`node ace serve`). Each consumer runs its own independent receive loop; a crash in one loop is logged and does not affect the others.
 
-To disable auto-start, set `autoListen: false` in `config/pulsar.ts` and run the dedicated command instead:
-
-```bash
-node ace pulsar:listen
-```
-
-This is useful when you want consumers running in a dedicated process separate from the HTTP server.
+The provider is registered for the `web` environment only, so it is not loaded during generic Ace console commands (for example `node ace make:migration posts`).
 
 ---
 
@@ -331,7 +321,7 @@ await manager.dispatch(...)
 | `adonis-pulsar` | `defineConfig`, `Consumer`, `configure`, `stubsRoot` |
 | `adonis-pulsar/types` | `PulsarConfig`, `ConsumerConstructor`, `DispatchOptions` |
 | `adonis-pulsar/pulsar_provider` | AdonisJS service provider |
-| `adonis-pulsar/commands` | `MakeConsumer`, `PulsarListen` |
+| `adonis-pulsar/commands` | `MakeConsumer` |
 | `adonis-pulsar/services/main` | Pre-resolved `PulsarManager` singleton |
 
 ---

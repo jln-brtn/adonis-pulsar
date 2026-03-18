@@ -17,7 +17,7 @@ export async function configure(command: Configure) {
   })
 
   await codemods.updateRcFile((rcFile: any) => {
-    rcFile.addProvider('adonis-pulsar/pulsar_provider')
+    rcFile.addProvider('adonis-pulsar/pulsar_provider', ['web'])
     rcFile.addCommand('adonis-pulsar/commands')
   })
 }

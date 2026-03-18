@@ -19,8 +19,6 @@ export default class PulsarProvider {
   }
 
   async ready() {
-    const config = this.app.config.get<PulsarConfig>('pulsar')
-    if (config.autoListen === false) return
     const manager = await this.app.container.make('adonis-pulsar/manager')
     manager.listen().catch(async (error) => {
       const logger = await this.app.container.make('logger')

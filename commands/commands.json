@@ -18,17 +18,6 @@
       ],
       "options": { "allowUnknownFlags": true },
       "filePath": "./make_consumer.js"
-    },
-    {
-      "commandName": "pulsar:listen",
-      "description": "Start the Pulsar consumer listener",
-      "help": "",
-      "namespace": "pulsar",
-      "aliases": [],
-      "flags": [],
-      "args": [],
-      "options": { "startApp": true, "staysAlive": true },
-      "filePath": "./pulsar_listen.js"
     }
   ]
 }

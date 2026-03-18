@@ -6,7 +6,6 @@ export interface PulsarConfig {
   token?: string
   tenant?: string
   namespace?: string
-  autoListen?: boolean
   client?: Omit<Pulsar.ClientConfig, 'serviceUrl' | 'authentication'>
   producer?: Omit<Pulsar.ProducerConfig, 'topic'>
   consumers?: (() => Promise<{ default: ConsumerConstructor }>)[]
